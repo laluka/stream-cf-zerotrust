@@ -15,7 +15,7 @@ https://one.dash.cloudflare.com/YOUR_ID/access/apps/add
 - Add "site" to cloudflare, the tld NS records must point to cloudflare requested ns at https://dash.cloudflare.com/
 - Serve your app locally: `cd "$(mktemp -d)" && date | tee index.html && python -m http.server -b 127.0.0.1 1337`
 - Create a cloudflare app at https://one.dash.cloudflare.com/ > Access > Applications > Add
-    - `Self Hosted` app named `srv` 
+    - `Self Hosted` app named `srv`
     - Subdomain is `srv.lalu.tv`
     - Keep `Accept all available identity providers` enabled
 - Create a Policy
@@ -42,7 +42,7 @@ https://one.dash.cloudflare.com/YOUR_ID/access/apps/add
 - Add "site" to cloudflare, the tld NS records must point to cloudflare requested ns at https://dash.cloudflare.com/
 - Configure your local ssh server (Do it yourself yo!)
 - Create a cloudflare app at https://one.dash.cloudflare.com/ > Access > Applications > Add
-    - `Self Hosted` app named `ssh` 
+    - `Self Hosted` app named `ssh`
     - Subdomain is `ssh.lalu.tv`
     - Keep `Accept all available identity providers` enabled
     - Enable `automatic cloudflared authentication` for convenience
@@ -96,6 +96,30 @@ rm ~/.cloudflared/cert.pem # Remove your local tunnel auth
 ```
 
 ---
+
+## Dump Cloudflare Config As Terraform
+
+- https://github.com/cloudflare/cf-terraforming
+- https://github.com/jdx/mise
+
+```bash
+mise install golang@latest
+mise use golang@latest
+go install github.com/cloudflare/cf-terraforming/cmd/cf-terraforming@latest
+# Setup your token yo!
+cat > main.tf << EOF
+terraform {
+  required_providers {
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 4.0"
+    }
+  }
+}
+EOF
+terraform init
+cf-terraforming generate --email "$CLOUDFLARE_EMAIL" --key "$CLOUDFLARE_API_KEY" --zone "$CLOUDFLARE_ZONE_ID" --resource-type "cloudflare_record" | tee -a main.tf
+```
 
 ## Future ideas
 
